@@ -15,10 +15,12 @@ export default function App() {
     const [jokeIndex, setJokeIndex] = useState(0);
     const [theme, setTheme] = useState(initialTheme);
 
-    const buttonStyle = getButtonStyle(theme);
     const sentenceStyle = getSentenceStyle(theme);
 
     const isPreviousButtonEnabled = jokeIndex > 0;
+
+    const previousButtonStyle = getButtonStyle(theme, isPreviousButtonEnabled);
+    const nextButtonStyle = getButtonStyle(theme);
 
     const nextHandler = () => {
         const joke = getRandomJoke(jokes.map((j) => j.id));
@@ -45,21 +47,21 @@ export default function App() {
                             key={'sentence' + index}
                             style={Boolean(index % 2) ? sentenceStyle.odd : sentenceStyle.even}
                         >
+                            {/* TODO Parse html in sentences */}
                             {sentence}
                         </Text>
                     ))}
                 </ScrollView>
                 <View style={allStyles.buttons}>
                     <PreviousButton
-                        buttonStyle={buttonStyle.button}
-                        fillColor={buttonStyle.path.color}
-                        isEnabled={isPreviousButtonEnabled}
+                        buttonStyle={previousButtonStyle.button}
+                        fillColor={previousButtonStyle.path.color}
                         onPress={previousHandler}
                     />
                     <NextButton
+                        buttonStyle={nextButtonStyle.button}
+                        fillColor={nextButtonStyle.path.color}
                         onPress={nextHandler}
-                        buttonStyle={buttonStyle.button}
-                        fillColor={buttonStyle.path.color}
                     />
                 </View>
             </View>

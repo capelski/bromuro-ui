@@ -17,9 +17,12 @@ const sentenceBaseStyle = {
     lineHeight: 28
 };
 
-export const getButtonStyle = (theme: Theme) => {
+export const getButtonStyle = (theme: Theme, isEnabled = true) => {
     return StyleSheet.create({
-        button: buttonStyle,
+        button: {
+            ...buttonStyle,
+            backgroundColor: isEnabled ? buttonStyle.backgroundColor : 'rgba(255, 255, 255, 0.5)'
+        },
         path: { color: theme.sentenceColor }
     });
 };

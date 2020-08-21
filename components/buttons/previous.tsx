@@ -5,20 +5,11 @@ import Svg, { Path } from 'react-native-svg';
 interface PreviousButtonProps {
     buttonStyle: StyleProp<any>;
     fillColor: string;
-    isEnabled: boolean;
     onPress: () => void;
 }
 
 export const PreviousButton: React.FC<PreviousButtonProps> = (props) => (
-    <TouchableOpacity
-        onPress={props.onPress}
-        style={{
-            ...props.buttonStyle,
-            backgroundColor: props.isEnabled
-                ? props.buttonStyle.backgroundColor
-                : 'rgba(255, 255, 255, 0.5)'
-        }}
-    >
+    <TouchableOpacity onPress={props.onPress} style={props.buttonStyle}>
         <Svg height={32} width={32} viewBox="0 0 492 492">
             <Path
                 fill={props.fillColor}
