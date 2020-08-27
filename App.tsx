@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { ImageBackground, ScrollView, Text, View } from 'react-native';
-import { getRandomJoke } from './components/jokes';
-import { NextButton } from './components/buttons/next';
-import { PreviousButton } from './components/buttons/previous';
-import { getButtonStyle, allStyles, getSentenceStyle } from './components/styles';
-import { getRandomTheme } from './components/themes';
+import { NextButton } from './src/components/next';
+import { PreviousButton } from './src/components/previous';
+import { getRandomJoke } from './src/jokes';
+import { getButtonStyle, allStyles, getSentenceStyle } from './src/styles';
+import { getRandomTheme } from './src/themes';
 
 const initialTheme = getRandomTheme();
 // TODO Retrieve the ids from local storage
@@ -47,7 +47,6 @@ export default function App() {
                             key={'sentence' + index}
                             style={Boolean(index % 2) ? sentenceStyle.odd : sentenceStyle.even}
                         >
-                            {/* TODO Parse html in sentences */}
                             {sentence}
                         </Text>
                     ))}
