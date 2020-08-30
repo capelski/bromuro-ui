@@ -1,5 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { ImageBackground, ScrollView, Text, View } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ImageBackground, Text, View, Animated } from 'react-native';
+import {
+    MovementDirection,
+    translateJoke,
+    enterRightAnimation,
+    enterLeftAnimation,
+    exitLeftAnimation,
+    exitRightAnimation
+} from './src/animations';
 import { NextButton } from './src/components/next';
 import { PreviousButton } from './src/components/previous';
 import { getMemoryJoke } from './src/jokes-json';
@@ -12,19 +20,29 @@ const initialTheme = getRandomTheme();
 
 export default function App() {
     const [jokes, setJokes] = useState<Joke[]>([]);
-    const [jokeIndex, setJokeIndex] = useState(0);
+    const [jokeIndex, setJokeIndex] = useState(-1);
     const [theme, setTheme] = useState(initialTheme);
+    const [direction, setDirection] = useState<MovementDirection>('left');
+
+    const opacity = useMemo(() => new Animated.Value(0), []);
+    const position = useMemo(() => new Animated.Value(0), []);
 
     useEffect(() => {
         // TODO Retrieve the ids from local storage
         getNetworkJoke([])
+            .catch(() => getMemoryJoke([]))
             .then((joke) => {
                 setJokes([joke]);
-            })
-            .catch(() => {
-                setJokes([getMemoryJoke([])]);
+                setJokeIndex(0);
             });
     }, []);
+
+    useEffect(() => {
+        Animated.sequence([
+            translateJoke(position, direction),
+            (direction === 'left' ? enterRightAnimation : enterLeftAnimation)(opacity, position)
+        ]).start();
+    }, [jokeIndex]);
 
     const sentenceStyle = getSentenceStyle(theme);
 
@@ -34,23 +52,26 @@ export default function App() {
     const nextButtonStyle = getButtonStyle(theme);
 
     const nextHandler = () => {
-        getNetworkJoke(jokes.map((j) => j.id))
-            .then((joke) => {
-                setTheme(getRandomTheme(theme));
-                setJokes(jokes.concat(joke));
-                setJokeIndex(jokeIndex + 1);
-            })
-            .catch(() => {
-                setTheme(getRandomTheme(theme));
-                setJokes(jokes.concat(getMemoryJoke([])));
-                setJokeIndex(jokeIndex + 1);
-            });
+        exitLeftAnimation(opacity, position).start(() => {
+            // TODO Retrieve the ids from local storage
+            getNetworkJoke(jokes.map((j) => j.id))
+                .catch(() => getMemoryJoke([]))
+                .then((joke) => {
+                    setDirection('left');
+                    setTheme(getRandomTheme(theme));
+                    setJokes(jokes.concat(joke));
+                    setJokeIndex(jokeIndex + 1);
+                });
+        });
     };
 
     const previousHandler = () => {
         if (isPreviousButtonEnabled) {
-            setTheme(getRandomTheme(theme));
-            setJokeIndex(jokeIndex - 1);
+            Animated.sequence([exitRightAnimation(opacity, position)]).start(() => {
+                setDirection('right');
+                setTheme(getRandomTheme(theme));
+                setJokeIndex(jokeIndex - 1);
+            });
         }
     };
 
@@ -59,7 +80,13 @@ export default function App() {
     return (
         <ImageBackground source={theme.backgroundImage} style={theme.backgroundStyle}>
             <View style={allStyles.container}>
-                <ScrollView contentContainerStyle={allStyles.jokesViewport}>
+                <Animated.ScrollView
+                    contentContainerStyle={allStyles.jokesViewport}
+                    style={{
+                        opacity,
+                        transform: [{ translateX: position }]
+                    }}
+                >
                     {currentJoke &&
                         currentJoke.text.map((sentence, index) => (
                             <Text
@@ -69,7 +96,7 @@ export default function App() {
                                 {sentence}
                             </Text>
                         ))}
-                </ScrollView>
+                </Animated.ScrollView>
                 <View style={allStyles.buttons}>
                     <PreviousButton
                         buttonStyle={previousButtonStyle.button}

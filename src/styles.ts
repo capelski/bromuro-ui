@@ -48,7 +48,8 @@ export const allStyles = StyleSheet.create({
     container: {
         padding: 16,
         display: 'flex',
-        flex: 1
+        flex: 1,
+        overflow: 'hidden'
     },
     jokesViewport: {
         flexGrow: 1,
