@@ -8,8 +8,8 @@ import {
     exitLeftAnimation,
     exitRightAnimation
 } from './src/animations';
-import { NextButton } from './src/components/next';
-import { PreviousButton } from './src/components/previous';
+import { NextButton } from './src/components/buttons/next';
+import { PreviousButton } from './src/components/buttons/previous';
 import { getMemoryJoke } from './src/jokes-json';
 import { getNetworkJoke } from './src/jokes-network';
 import { getButtonStyle, allStyles, getSentenceStyle } from './src/styles';
@@ -31,6 +31,7 @@ export default function App() {
         // TODO Retrieve the ids from local storage
         getNetworkJoke([])
             .catch(() => getMemoryJoke([]))
+            // TODO Instead of falling back to json jokes, keep the network status in a state property
             .then((joke) => {
                 setJokes([joke]);
                 setJokeIndex(0);
