@@ -10,12 +10,12 @@ export interface ButtonBaseProps {
 
 interface ButtonProps extends ButtonBaseProps {
     path: string;
-    viewBox?: string;
+    viewBox: string;
 }
 
 export const Button: React.FC<ButtonProps> = (props) => (
     <TouchableOpacity onPress={props.onPress} style={props.buttonStyle}>
-        <Svg height={32} width={32} viewBox={props.viewBox || '0 0 492 492'}>
+        <Svg height={32} width={32} viewBox={props.viewBox}>
             <Path fill={props.fillColor} d={props.path} />
         </Svg>
     </TouchableOpacity>

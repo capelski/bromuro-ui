@@ -8,6 +8,7 @@ import {
     exitLeftAnimation,
     exitRightAnimation
 } from './src/animations';
+// import { ModeButton } from './src/components/buttons/mode';
 import { NextButton } from './src/components/buttons/next';
 import { PreviousButton } from './src/components/buttons/previous';
 import { getMemoryJoke } from './src/jokes-json';
@@ -99,6 +100,11 @@ export default function App() {
                         ))}
                 </Animated.ScrollView>
                 <View style={allStyles.buttons}>
+                    {/* <ModeButton
+                        buttonStyle={previousButtonStyle.button}
+                        fillColor={previousButtonStyle.path.color}
+                        onPress={previousHandler}
+                    /> */}
                     <PreviousButton
                         buttonStyle={previousButtonStyle.button}
                         fillColor={previousButtonStyle.path.color}
