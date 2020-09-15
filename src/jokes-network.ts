@@ -1,9 +1,17 @@
 import { config } from './config';
 import { Joke } from './types';
 
-export const getNetworkJoke = (consumedIds: number[]) => {
-    const randomJokeId = Math.floor(Math.random() * 324) + 1;
-    const absoluteUrl = config.API_URL + `/jokes/${randomJokeId}`;
+export const getNetworkJoke = (consumedIds: number[], filter?: string, offset?: number) => {
+    let relativeUrl: string;
+    if (filter) {
+        relativeUrl = `/jokes/match?text=${filter}${
+            offset !== undefined ? `&offset=${offset}` : ''
+        }`;
+    } else {
+        const randomJokeId = Math.floor(Math.random() * 324) + 1;
+        relativeUrl = `/jokes/${randomJokeId}`;
+    }
+    const absoluteUrl = config.API_URL + relativeUrl;
     let response: Response;
 
     return (

@@ -17,13 +17,17 @@ const sentenceBaseStyle = {
     lineHeight: 28
 };
 
-export const getButtonStyle = (theme: Theme, isEnabled = true) => {
+export const getButtonStyle = (theme: Theme, isEnabled = true, isActive = false) => {
     return StyleSheet.create({
         button: {
             ...buttonStyle,
-            backgroundColor: isEnabled ? buttonStyle.backgroundColor : 'rgba(255, 255, 255, 0.5)'
+            backgroundColor: isEnabled
+                ? isActive
+                    ? theme.sentenceColor
+                    : buttonStyle.backgroundColor
+                : 'rgba(255, 255, 255, 0.5)'
         },
-        path: { color: theme.sentenceColor }
+        path: { color: isActive && isEnabled ? buttonStyle.backgroundColor : theme.sentenceColor }
     });
 };
 
@@ -60,5 +64,16 @@ export const allStyles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center'
+    },
+    textInput: {
+        backgroundColor: '#fff',
+        fontSize: 24,
+        height: 56,
+        marginHorizontal: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        textAlign: 'center',
+        fontWeight: 'bold',
+        maxWidth: 360
     }
 });
