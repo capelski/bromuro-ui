@@ -65,7 +65,10 @@ export const allStyles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center'
     },
-    textInput: {
+    searcher: {
+        position: 'relative'
+    },
+    searcherInput: {
         backgroundColor: '#fff',
         fontSize: 24,
         height: 56,
@@ -73,7 +76,11 @@ export const allStyles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
         textAlign: 'center',
-        fontWeight: 'bold',
-        maxWidth: 360
+        fontWeight: 'bold'
+    },
+    searcherClear: {
+        position: 'absolute',
+        right: 16,
+        top: 12
     }
 });

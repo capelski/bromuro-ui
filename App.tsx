@@ -19,6 +19,8 @@ import { Joke } from './src/types';
 
 const initialTheme = getRandomTheme();
 
+// TODO Refactor
+
 export default function App() {
     const [jokes, setJokes] = useState<Joke[]>([]);
     const [jokeIndex, setJokeIndex] = useState(-1);
@@ -27,6 +29,7 @@ export default function App() {
     const [isSearcherVisible, setIsSearcherVisible] = useState(false);
     const [filter, setFilter] = useState('');
     const [searcherOffsets, setSearcherOffsets] = useState<{ [key: string]: number }>({});
+    const [lastError, setLastError] = useState<{ ref: string | undefined }>({ ref: undefined });
 
     const opacity = useMemo(() => new Animated.Value(0), []);
     const position = useMemo(() => new Animated.Value(0), []);
@@ -39,8 +42,7 @@ export default function App() {
                 setJokeIndex(0);
             })
             .catch((error) => {
-                // TODO Capture error and tell the user
-                console.log(error);
+                setLastError({ ref: error.message });
             });
     }, []);
 
@@ -49,48 +51,53 @@ export default function App() {
             translateJoke(position, direction),
             (direction === 'left' ? enterRightAnimation : enterLeftAnimation)(opacity, position)
         ]).start();
-    }, [jokeIndex]);
+    }, [jokeIndex, lastError]);
 
     const sentenceStyle = getSentenceStyle(theme);
 
     const isPreviousButtonEnabled = jokeIndex > 0;
 
     const previousButtonStyle = getButtonStyle(theme, isPreviousButtonEnabled);
-    const searchButtonStyle = getButtonStyle(theme, true, isSearcherVisible || filter !== '');
+    const searchButtonStyle = getButtonStyle(theme, true, isSearcherVisible);
     const nextButtonStyle = getButtonStyle(theme);
 
     const nextHandler = () => {
         exitLeftAnimation(opacity, position).start(() => {
+            setDirection('left');
+            setTheme(getRandomTheme(theme));
+
             if (jokeIndex < jokes.length - 1) {
-                setDirection('left');
-                setTheme(getRandomTheme(theme));
+                setLastError({ ref: undefined });
                 setJokeIndex(jokeIndex + 1);
             } else {
-                // TODO Retrieve the ids from local storage
-                if (filter && searcherOffsets[filter] === undefined) {
-                    searcherOffsets[filter] = 0;
+                let offset = searcherOffsets[filter];
+                if (filter && isNaN(searcherOffsets[filter])) {
+                    offset = 0;
+                    setSearcherOffsets({
+                        ...searcherOffsets,
+                        [filter]: offset
+                    });
                 }
+
                 getNetworkJoke(
+                    // TODO Retrieve the ids from local storage
                     jokes.map((j) => j.id),
                     filter,
-                    searcherOffsets[filter]
+                    offset
                 )
                     .then((joke) => {
+                        setLastError({ ref: undefined });
                         if (filter) {
                             setSearcherOffsets({
                                 ...searcherOffsets,
-                                [filter]: searcherOffsets[filter] + 1
+                                [filter]: offset + 1
                             });
                         }
-                        setDirection('left');
-                        setTheme(getRandomTheme(theme));
                         setJokes(jokes.concat(joke));
                         setJokeIndex(jokeIndex + 1);
                     })
                     .catch((error) => {
-                        // TODO Capture error and tell the user
-                        // TODO If (filter)and 404, set the searcherOffsets to -1
-                        console.log(error);
+                        setLastError({ ref: error.message });
                     });
             }
         });
@@ -101,7 +108,11 @@ export default function App() {
             Animated.sequence([exitRightAnimation(opacity, position)]).start(() => {
                 setDirection('right');
                 setTheme(getRandomTheme(theme));
-                setJokeIndex(jokeIndex - 1);
+                if (lastError.ref) {
+                    setLastError({ ref: undefined });
+                } else {
+                    setJokeIndex(jokeIndex - 1);
+                }
             });
         }
     };
@@ -110,7 +121,7 @@ export default function App() {
         setIsSearcherVisible(!isSearcherVisible);
     };
 
-    const currentJoke = jokes[jokeIndex];
+    const currentJoke = lastError.ref ? { text: [lastError.ref] } : jokes[jokeIndex];
 
     return (
         <ImageBackground source={theme.backgroundImage} style={theme.backgroundStyle}>
@@ -146,18 +157,17 @@ export default function App() {
                         />
                         <NextButton
                             buttonStyle={nextButtonStyle.button}
+                            displaySearchIcon={Boolean(filter) && jokeIndex === jokes.length - 1}
                             fillColor={nextButtonStyle.path.color}
                             onPress={nextHandler}
                         />
                     </View>
                     {isSearcherVisible && (
-                        <View
-                            style={{ position: 'relative', display: 'flex', alignItems: 'center' }}
-                        >
+                        <View style={allStyles.searcher}>
                             <TextInput
                                 value={filter}
                                 onChangeText={setFilter}
-                                style={allStyles.textInput}
+                                style={allStyles.searcherInput}
                             />
                             {filter !== '' && (
                                 <Svg
@@ -167,11 +177,7 @@ export default function App() {
                                     onPress={() => {
                                         setFilter('');
                                     }}
-                                    style={{
-                                        position: 'absolute',
-                                        right: 16,
-                                        top: 12
-                                    }}
+                                    style={allStyles.searcherClear}
                                 >
                                     <Path
                                         fill={nextButtonStyle.path.color}

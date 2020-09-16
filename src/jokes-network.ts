@@ -21,7 +21,10 @@ export const getNetworkJoke = (consumedIds: number[], filter?: string, offset?: 
                 console.log(error);
                 return {
                     ok: false,
-                    json: () => Promise.resolve({ message: 'Network is not available' })
+                    json: () =>
+                        Promise.resolve({
+                            message: 'Vaya... algo no ha ido bien 🤦‍♂️'
+                        })
                 } as Response;
             })
             .then((_response) => {
@@ -31,7 +34,7 @@ export const getNetworkJoke = (consumedIds: number[], filter?: string, offset?: 
             // response.json() might throw an exception if response doesn't contain JSON
             .catch((error) => {
                 console.log(error);
-                return { message: 'Error parsing the server response' };
+                return { message: 'Vaya... algo no ha ido bien 🤦‍♂️' };
             })
             .then((responseJson) => {
                 console.log('Request:', absoluteUrl);

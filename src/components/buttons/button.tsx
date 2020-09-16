@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, StyleProp } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg from 'react-native-svg';
 
 export interface ButtonBaseProps {
     buttonStyle: StyleProp<any>;
@@ -9,14 +9,13 @@ export interface ButtonBaseProps {
 }
 
 interface ButtonProps extends ButtonBaseProps {
-    path: string;
     viewBox: string;
 }
 
 export const Button: React.FC<ButtonProps> = (props) => (
     <TouchableOpacity onPress={props.onPress} style={props.buttonStyle}>
         <Svg height={32} width={32} viewBox={props.viewBox}>
-            <Path fill={props.fillColor} d={props.path} />
+            {props.children}
         </Svg>
     </TouchableOpacity>
 );
