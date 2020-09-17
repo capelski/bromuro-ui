@@ -2,12 +2,7 @@ import alphaBg from '../assets/backgrounds/alpha-bg.png';
 import betaBg from '../assets/backgrounds/beta-bg.png';
 import gammaBg from '../assets/backgrounds/gamma-bg.png';
 import deltaBg from '../assets/backgrounds/delta-bg.png';
-
-export interface Theme {
-    backgroundImage: any;
-    backgroundStyle: any;
-    sentenceColor: string;
-}
+import { Theme } from './types';
 
 const themes: Theme[] = [
     {

@@ -2,7 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ImageBackground, Text, View, Animated, TextInput } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import {
-    MovementDirection,
+    displayLastJoke,
+    displayPreviousJoke,
+    isFirstJoke,
+    isLastJoke,
+    displayNextJoke
+} from './src/actions';
+import {
     translateJoke,
     enterRightAnimation,
     enterLeftAnimation,
@@ -12,121 +18,99 @@ import {
 import { NextButton } from './src/components/buttons/next';
 import { PreviousButton } from './src/components/buttons/previous';
 import { SearchButton } from './src/components/buttons/search';
-import { getNetworkJoke } from './src/jokes-network';
 import { getButtonStyle, allStyles, getSentenceStyle } from './src/styles';
 import { getRandomTheme } from './src/themes';
-import { Joke } from './src/types';
+import { Joke, MovementDirection, StateSetters, State } from './src/types';
 
 const initialTheme = getRandomTheme();
 
-// TODO Refactor
 // TODO Replace default icons (e.g. favicon, icon, splash)
 
 export default function App() {
-    const [jokes, setJokes] = useState<Joke[]>([]);
-    const [jokeIndex, setJokeIndex] = useState(-1);
-    const [theme, setTheme] = useState(initialTheme);
+    const [currentError, setCurrentError] = useState<{ ref?: string }>({
+        ref: undefined
+    });
     const [direction, setDirection] = useState<MovementDirection>('left');
-    const [isSearcherVisible, setIsSearcherVisible] = useState(false);
     const [filter, setFilter] = useState('');
+    const [isSearcherVisible, setIsSearcherVisible] = useState(false);
+    const [jokeIndex, setJokeIndex] = useState(-1);
+    const [jokes, setJokes] = useState<Joke[]>([]);
     const [searcherOffsets, setSearcherOffsets] = useState<{ [key: string]: number }>({});
-    const [lastError, setLastError] = useState<{ ref: string | undefined }>({ ref: undefined });
+    const [theme, setTheme] = useState(initialTheme);
+
+    const state: State = {
+        currentError,
+        direction,
+        filter,
+        jokeIndex,
+        jokes,
+        searcherOffsets,
+        theme
+    };
+
+    const stateSetters: StateSetters = {
+        setCurrentError,
+        setDirection,
+        setJokeIndex,
+        setJokes,
+        setSearcherOffsets,
+        setTheme
+    };
 
     const opacity = useMemo(() => new Animated.Value(0), []);
     const position = useMemo(() => new Animated.Value(0), []);
 
     useEffect(() => {
-        // TODO Retrieve the ids from local storage
-        getNetworkJoke([])
-            .then((joke) => {
-                setJokes([joke]);
-                setJokeIndex(0);
-            })
-            .catch((error) => {
-                console.log(error);
-                setLastError({ ref: error.message });
-            });
+        displayNextJoke(state, stateSetters, true);
     }, []);
 
     useEffect(() => {
-        // TODO Manage all animations from here
         Animated.sequence([
             translateJoke(position, direction),
             (direction === 'left' ? enterRightAnimation : enterLeftAnimation)(opacity, position)
         ]).start();
-    }, [jokeIndex, lastError]);
+    }, [jokeIndex, currentError]);
 
     const sentenceStyle = getSentenceStyle(theme);
 
-    const isPreviousButtonEnabled = jokeIndex > 0;
-
-    const previousButtonStyle = getButtonStyle(theme, isPreviousButtonEnabled);
+    const previousButtonStyle = getButtonStyle(theme, !isFirstJoke(jokeIndex));
     const searchButtonStyle = getButtonStyle(theme, true, isSearcherVisible);
     const nextButtonStyle = getButtonStyle(theme);
 
     const nextHandler = () => {
         exitLeftAnimation(opacity, position).start(() => {
-            setDirection('left');
-            setTheme(getRandomTheme(theme));
-
-            if (jokeIndex < jokes.length - 1) {
-                setLastError({ ref: undefined });
-                setJokeIndex(jokeIndex + 1);
-            } else {
-                let offset = searcherOffsets[filter];
-                if (filter && isNaN(searcherOffsets[filter])) {
-                    offset = 0;
-                    setSearcherOffsets({
-                        ...searcherOffsets,
-                        [filter]: offset
-                    });
-                }
-
-                getNetworkJoke(
-                    // TODO Retrieve the ids from local storage
-                    jokes.map((j) => j.id),
-                    filter,
-                    offset
-                )
-                    .then((joke) => {
-                        setLastError({ ref: undefined });
-                        if (filter) {
-                            setSearcherOffsets({
-                                ...searcherOffsets,
-                                [filter]: offset + 1
-                            });
-                        }
-                        setJokes(jokes.concat(joke));
-                        setJokeIndex(jokeIndex + 1);
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                        setLastError({ ref: error.message });
-                        // TODO If filtering and 404, clear the filter
-                    });
-            }
+            displayNextJoke(state, stateSetters);
         });
     };
 
     const previousHandler = () => {
-        if (isPreviousButtonEnabled) {
-            Animated.sequence([exitRightAnimation(opacity, position)]).start(() => {
-                setDirection('right');
-                setTheme(getRandomTheme(theme));
-                if (lastError.ref) {
-                    setLastError({ ref: undefined });
-                } else {
-                    setJokeIndex(jokeIndex - 1);
-                }
+        if (!isFirstJoke(jokeIndex)) {
+            exitRightAnimation(opacity, position).start(() => {
+                displayPreviousJoke(state, stateSetters);
             });
         }
     };
 
     const searchHandler = () => {
         setIsSearcherVisible(!isSearcherVisible);
+        // TODO Focus the text input
     };
 
-    const currentJoke = lastError.ref ? { text: [lastError.ref] } : jokes[jokeIndex];
+    const clearSearchHandler = () => {
+        setFilter('');
+        // TODO Focus the text input
+    };
+
+    const displayLastJokeHandler = () => {
+        if (!isLastJoke(jokes, jokeIndex)) {
+            exitLeftAnimation(opacity, position).start(() => {
+                displayLastJoke(state, stateSetters);
+            });
+        }
+    };
+
+    // TODO This is not clear at all
+    const currentJoke = currentError.ref ? { text: [currentError.ref] } : jokes[jokeIndex];
 
     return (
         <ImageBackground source={theme.backgroundImage} style={theme.backgroundStyle}>
@@ -162,7 +146,7 @@ export default function App() {
                         />
                         <NextButton
                             buttonStyle={nextButtonStyle.button}
-                            displaySearchIcon={Boolean(filter) && jokeIndex === jokes.length - 1}
+                            displaySearchIcon={Boolean(filter) && isLastJoke(jokes, jokeIndex)}
                             fillColor={nextButtonStyle.path.color}
                             onPress={nextHandler}
                         />
@@ -172,9 +156,7 @@ export default function App() {
                             <TextInput
                                 value={filter}
                                 onChangeText={setFilter}
-                                onFocus={() => {
-                                    setJokeIndex(jokes.length - 1);
-                                }}
+                                onFocus={displayLastJokeHandler}
                                 style={allStyles.searcherInput}
                             />
                             {filter !== '' && (
@@ -182,9 +164,7 @@ export default function App() {
                                     viewBox="0 0 352 512"
                                     height={32}
                                     width={32}
-                                    onPress={() => {
-                                        setFilter('');
-                                    }}
+                                    onPress={clearSearchHandler}
                                     style={allStyles.searcherClear}
                                 >
                                     <Path

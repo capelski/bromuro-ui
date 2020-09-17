@@ -1,21 +1,13 @@
 import { config } from './config';
 import { Joke } from './types';
 
-export const getNetworkJoke = (consumedIds: number[], filter?: string, offset?: number) => {
-    let relativeUrl: string;
-    if (filter) {
-        relativeUrl = `/jokes/match?text=${filter}${
-            offset !== undefined ? `&offset=${offset}` : ''
-        }`;
-    } else {
-        const randomJokeId = Math.floor(Math.random() * 324) + 1;
-        relativeUrl = `/jokes/${randomJokeId}`;
-    }
-    const absoluteUrl = config.API_URL + relativeUrl;
+const useMockService = true && process.env.NODE_ENV !== 'production';
+
+const networkRequest = (url: string) => {
     let response: Response;
 
     return (
-        fetch(absoluteUrl)
+        fetch(url)
             // Fetch might throw an exception if network is unavailable, DNS fails to resolve, etc.
             .catch((error) => {
                 console.log(error);
@@ -37,7 +29,7 @@ export const getNetworkJoke = (consumedIds: number[], filter?: string, offset?: 
                 return { message: 'Vaya... algo no ha ido bien 🤦‍♂️' };
             })
             .then((responseJson) => {
-                console.log('Request:', absoluteUrl);
+                console.log('Request:', url);
                 console.log('Response:', response.status);
                 console.log(responseJson);
 
@@ -48,4 +40,28 @@ export const getNetworkJoke = (consumedIds: number[], filter?: string, offset?: 
                 }
             })
     );
+};
+
+export const getMatchingJoke = (filter: string, offset: number) => {
+    const absoluteUrl =
+        config.API_URL +
+        `/jokes/match?text=${filter}${offset !== undefined ? `&offset=${offset}` : ''}`;
+    return useMockService
+        ? Promise.resolve({
+              id: -1,
+              text: ['Matching', 'joke', String(new Date().getMilliseconds())]
+          })
+        : networkRequest(absoluteUrl);
+};
+
+// TODO Use consumedIds
+export const getRandomJoke = (_consumedIds: number[]) => {
+    const randomJokeId = Math.floor(Math.random() * 324) + 1;
+    const absoluteUrl = config.API_URL + `/jokes/${randomJokeId}`;
+    return useMockService
+        ? Promise.resolve({
+              id: -1,
+              text: ['Random', 'joke', String(new Date().getMilliseconds())]
+          })
+        : networkRequest(absoluteUrl);
 };

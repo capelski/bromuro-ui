@@ -1,9 +1,8 @@
 import { Animated } from 'react-native';
+import { MovementDirection } from './types';
 
 const translationValue = 50;
 const animationsDuration = 400;
-
-export type MovementDirection = 'left' | 'right';
 
 export const enterLeftAnimation = (opacity: Animated.Value, position: Animated.Value) =>
     Animated.parallel([
