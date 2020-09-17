@@ -2,17 +2,20 @@ import React from 'react';
 import { TouchableOpacity, StyleProp } from 'react-native';
 import Svg from 'react-native-svg';
 
-export interface ButtonBaseProps {
+interface ButtonCommonProps {
     buttonStyle: StyleProp<any>;
-    fillColor: string;
     onPress: () => void;
 }
 
-interface ButtonProps extends ButtonBaseProps {
+interface ButtonBaseProps extends ButtonCommonProps {
     viewBox: string;
 }
 
-export const Button: React.FC<ButtonProps> = (props) => (
+export interface ButtonProps extends ButtonCommonProps {
+    fillColor: string;
+}
+
+export const Button: React.FC<ButtonBaseProps> = (props) => (
     <TouchableOpacity onPress={props.onPress} style={props.buttonStyle}>
         <Svg height={32} width={32} viewBox={props.viewBox}>
             {props.children}

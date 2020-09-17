@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ImageBackground, Text, View, Animated, TextInput } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import { ImageBackground, View, Animated } from 'react-native';
 import {
     displayLastJoke,
+    displayNextJoke,
     displayPreviousJoke,
     isFirstJoke,
     isLastJoke,
-    displayNextJoke
+    loadMatchingJoke,
+    loadRandomJoke
 } from './src/actions';
 import {
     translateJoke,
@@ -15,19 +16,26 @@ import {
     exitLeftAnimation,
     exitRightAnimation
 } from './src/animations';
-import { NextButton } from './src/components/buttons/next';
-import { PreviousButton } from './src/components/buttons/previous';
-import { SearchButton } from './src/components/buttons/search';
-import { getButtonStyle, allStyles, getSentenceStyle } from './src/styles';
+import { allStyles } from './src/styles';
 import { getRandomTheme } from './src/themes';
-import { Joke, MovementDirection, StateSetters, State } from './src/types';
+import {
+    Joke,
+    MovementDirection,
+    StateSetters,
+    State,
+    NumericDictionary,
+    WrappedValue
+} from './src/types';
+import { Buttons } from './src/components/buttons';
+import { Searcher } from './src/components/searcher';
+import { JokesContainer } from './src/components/jokes-container';
 
 const initialTheme = getRandomTheme();
 
 // TODO Replace default icons (e.g. favicon, icon, splash)
 
 export default function App() {
-    const [currentError, setCurrentError] = useState<{ ref?: string }>({
+    const [currentError, setCurrentError] = useState<WrappedValue<string>>({
         ref: undefined
     });
     const [direction, setDirection] = useState<MovementDirection>('left');
@@ -35,7 +43,7 @@ export default function App() {
     const [isSearcherVisible, setIsSearcherVisible] = useState(false);
     const [jokeIndex, setJokeIndex] = useState(-1);
     const [jokes, setJokes] = useState<Joke[]>([]);
-    const [searcherOffsets, setSearcherOffsets] = useState<{ [key: string]: number }>({});
+    const [searcherOffsets, setSearcherOffsets] = useState<NumericDictionary>({});
     const [theme, setTheme] = useState(initialTheme);
 
     const state: State = {
@@ -57,13 +65,16 @@ export default function App() {
         setTheme
     };
 
+    // When application starts, a random joke is loaded
+    useEffect(() => {
+        loadRandomJoke(state, stateSetters);
+    }, []);
+
     const opacity = useMemo(() => new Animated.Value(0), []);
     const position = useMemo(() => new Animated.Value(0), []);
 
-    useEffect(() => {
-        displayNextJoke(state, stateSetters, true);
-    }, []);
-
+    // The "enter" animation will be activated every time the jokeIndex changes (e.g.
+    // previous or next is clicked) or when an error occurs, to display the message
     useEffect(() => {
         Animated.sequence([
             translateJoke(position, direction),
@@ -71,15 +82,15 @@ export default function App() {
         ]).start();
     }, [jokeIndex, currentError]);
 
-    const sentenceStyle = getSentenceStyle(theme);
-
-    const previousButtonStyle = getButtonStyle(theme, !isFirstJoke(jokeIndex));
-    const searchButtonStyle = getButtonStyle(theme, true, isSearcherVisible);
-    const nextButtonStyle = getButtonStyle(theme);
-
     const nextHandler = () => {
         exitLeftAnimation(opacity, position).start(() => {
-            displayNextJoke(state, stateSetters);
+            if (!isLastJoke(jokes, jokeIndex)) {
+                displayNextJoke(state, stateSetters);
+            } else if (state.filter) {
+                loadMatchingJoke(state, stateSetters);
+            } else {
+                loadRandomJoke(state, stateSetters);
+            }
         });
     };
 
@@ -109,71 +120,35 @@ export default function App() {
         }
     };
 
-    // TODO This is not clear at all
-    const currentJoke = currentError.ref ? { text: [currentError.ref] } : jokes[jokeIndex];
-
     return (
         <ImageBackground source={theme.backgroundImage} style={theme.backgroundStyle}>
             <View style={allStyles.container}>
-                <Animated.ScrollView
-                    contentContainerStyle={allStyles.jokesViewport}
-                    style={{
-                        opacity,
-                        transform: [{ translateX: position }]
-                    }}
-                >
-                    {currentJoke &&
-                        currentJoke.text.map((sentence, index) => (
-                            <Text
-                                key={'sentence' + index}
-                                style={Boolean(index % 2) ? sentenceStyle.odd : sentenceStyle.even}
-                            >
-                                {sentence}
-                            </Text>
-                        ))}
-                </Animated.ScrollView>
+                <JokesContainer
+                    currentError={currentError}
+                    jokeIndex={jokeIndex}
+                    jokes={jokes}
+                    opacity={opacity}
+                    position={position}
+                    theme={theme}
+                />
                 <View>
-                    <View style={allStyles.buttons}>
-                        <PreviousButton
-                            buttonStyle={previousButtonStyle.button}
-                            fillColor={previousButtonStyle.path.color}
-                            onPress={previousHandler}
-                        />
-                        <SearchButton
-                            buttonStyle={searchButtonStyle.button}
-                            fillColor={searchButtonStyle.path.color}
-                            onPress={searchHandler}
-                        />
-                        <NextButton
-                            buttonStyle={nextButtonStyle.button}
-                            displaySearchIcon={Boolean(filter) && isLastJoke(jokes, jokeIndex)}
-                            fillColor={nextButtonStyle.path.color}
-                            onPress={nextHandler}
-                        />
-                    </View>
+                    <Buttons
+                        displaySearchIcon={Boolean(filter) && isLastJoke(jokes, jokeIndex)}
+                        isFirstJoke={isFirstJoke(jokeIndex)}
+                        isSearcherVisible={isSearcherVisible}
+                        nextHandler={nextHandler}
+                        previousHandler={previousHandler}
+                        searchHandler={searchHandler}
+                        theme={theme}
+                    />
                     {isSearcherVisible && (
-                        <View style={allStyles.searcher}>
-                            <TextInput
-                                value={filter}
-                                onChangeText={setFilter}
-                                onFocus={displayLastJokeHandler}
-                                style={allStyles.searcherInput}
-                            />
-                            {filter !== '' && (
-                                <Svg
-                                    viewBox="0 0 352 512"
-                                    height={32}
-                                    width={32}
-                                    onPress={clearSearchHandler}
-                                    style={allStyles.searcherClear}
-                                >
-                                    <Path
-                                        fill={nextButtonStyle.path.color}
-                                        d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-                                    />
-                                </Svg>
-                            )}
-                        </View>
+                        <Searcher
+                            clearSearchHandler={clearSearchHandler}
+                            displayLastJokeHandler={displayLastJokeHandler}
+                            filter={filter}
+                            setFilter={setFilter}
+                            theme={theme}
+                        />
                     )}
                 </View>
             </View>

@@ -5,13 +5,15 @@ export interface Joke {
 
 export type MovementDirection = 'left' | 'right';
 
+export type NumericDictionary = { [key: string]: number };
+
 export interface State {
-    currentError: { ref?: string };
+    currentError: WrappedValue<string>;
     direction: MovementDirection;
     filter: string;
     jokeIndex: number;
     jokes: Joke[];
-    searcherOffsets: { [key: string]: number };
+    searcherOffsets: NumericDictionary;
     theme: Theme;
 }
 
@@ -29,3 +31,6 @@ export interface Theme {
     backgroundStyle: any;
     sentenceColor: string;
 }
+
+// TODO Rename ref to value
+export type WrappedValue<T> = { ref?: T };

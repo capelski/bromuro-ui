@@ -1,8 +1,8 @@
 import React from 'react';
 import { Path } from 'react-native-svg';
-import { Button, ButtonBaseProps } from './button';
+import { Button, ButtonProps } from './button';
 
-export const PreviousButton: React.FC<ButtonBaseProps> = (props) => (
+export const PreviousButton: React.FC<ButtonProps> = (props) => (
     <Button {...props} viewBox="0 0 492 492">
         <Path
             fill={props.fillColor}

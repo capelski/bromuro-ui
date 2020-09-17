@@ -1,5 +1,7 @@
 import { StyleSheet } from 'react-native';
-import { Theme } from './themes';
+import { Theme } from './types';
+
+// TODO Distribute across corresponding files
 
 const buttonStyle = {
     marginVertical: 16,
