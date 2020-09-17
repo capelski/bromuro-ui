@@ -16,7 +16,6 @@ import {
     exitLeftAnimation,
     exitRightAnimation
 } from './src/animations';
-import { allStyles } from './src/styles';
 import { getRandomTheme } from './src/themes';
 import {
     Joke,
@@ -36,7 +35,7 @@ const initialTheme = getRandomTheme();
 
 export default function App() {
     const [currentError, setCurrentError] = useState<WrappedValue<string>>({
-        ref: undefined
+        value: undefined
     });
     const [direction, setDirection] = useState<MovementDirection>('left');
     const [filter, setFilter] = useState('');
@@ -59,6 +58,8 @@ export default function App() {
     const stateSetters: StateSetters = {
         setCurrentError,
         setDirection,
+        setFilter,
+        setIsSearcherVisible,
         setJokeIndex,
         setJokes,
         setSearcherOffsets,
@@ -87,6 +88,7 @@ export default function App() {
             if (!isLastJoke(jokes, jokeIndex)) {
                 displayNextJoke(state, stateSetters);
             } else if (state.filter) {
+                // TODO Remove the focus from the input
                 loadMatchingJoke(state, stateSetters);
             } else {
                 loadRandomJoke(state, stateSetters);
@@ -109,7 +111,7 @@ export default function App() {
 
     const clearSearchHandler = () => {
         setFilter('');
-        // TODO Focus the text input
+        setIsSearcherVisible(false);
     };
 
     const displayLastJokeHandler = () => {
@@ -122,7 +124,7 @@ export default function App() {
 
     return (
         <ImageBackground source={theme.backgroundImage} style={theme.backgroundStyle}>
-            <View style={allStyles.container}>
+            <View style={{ padding: 16, display: 'flex', flex: 1, overflow: 'hidden' }}>
                 <JokesContainer
                     currentError={currentError}
                     jokeIndex={jokeIndex}

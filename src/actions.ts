@@ -19,8 +19,8 @@ export const displayNextJoke = (state: State, stateSetters: StateSetters, nextJo
 export const displayPreviousJoke = (state: State, stateSetters: StateSetters) => {
     stateSetters.setDirection('right');
     stateSetters.setTheme(getRandomTheme(state.theme));
-    if (state.currentError.ref) {
-        stateSetters.setCurrentError({ ref: undefined });
+    if (state.currentError.value) {
+        stateSetters.setCurrentError({ value: undefined });
     } else {
         stateSetters.setJokeIndex(state.jokeIndex - 1);
     }
@@ -41,12 +41,13 @@ export const loadMatchingJoke = (state: State, stateSetters: StateSetters) => {
                 ...state.searcherOffsets,
                 [state.filter]: offset + 1
             });
-            stateSetters.setCurrentError({ ref: undefined });
+            stateSetters.setCurrentError({ value: undefined });
         })
         .catch((error) => {
             console.log(error);
-            stateSetters.setCurrentError({ ref: error.message });
-            // TODO If 404 clear the filter
+            stateSetters.setCurrentError({ value: error.message });
+            stateSetters.setFilter('');
+            stateSetters.setIsSearcherVisible(false);
         });
 };
 
@@ -57,10 +58,10 @@ export const loadRandomJoke = (state: State, stateSetters: StateSetters) => {
     )
         .then((joke) => {
             displayNextJoke(state, stateSetters, joke);
-            stateSetters.setCurrentError({ ref: undefined });
+            stateSetters.setCurrentError({ value: undefined });
         })
         .catch((error) => {
             console.log(error);
-            stateSetters.setCurrentError({ ref: error.message });
+            stateSetters.setCurrentError({ value: error.message });
         });
 };

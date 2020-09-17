@@ -1,7 +1,7 @@
 import { config } from './config';
 import { Joke } from './types';
 
-const useMockService = true && process.env.NODE_ENV !== 'production';
+const useMockService = false && process.env.NODE_ENV !== 'production';
 
 const networkRequest = (url: string) => {
     let response: Response;

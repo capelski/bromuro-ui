@@ -1,6 +1,5 @@
 import React from 'react';
-import { Animated, Text } from 'react-native';
-import { allStyles, getSentenceStyle } from '../styles';
+import { Animated, StyleSheet, Text } from 'react-native';
 import { WrappedValue, Theme, Joke } from '../types';
 
 interface JokesContainerProps {
@@ -17,14 +16,14 @@ export const JokesContainer: React.FC<JokesContainerProps> = (props) => {
 
     return (
         <Animated.ScrollView
-            contentContainerStyle={allStyles.jokesViewport}
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}
             style={{
                 opacity: props.opacity,
                 transform: [{ translateX: props.position }]
             }}
         >
-            {props.currentError.ref ? (
-                <Text style={sentenceStyle.odd}>{props.currentError.ref}</Text>
+            {props.currentError.value ? (
+                <Text style={sentenceStyle.even}>{props.currentError.value}</Text>
             ) : (
                 props.jokes[props.jokeIndex] &&
                 props.jokes[props.jokeIndex].text.map((sentence, index) => (
@@ -38,4 +37,30 @@ export const JokesContainer: React.FC<JokesContainerProps> = (props) => {
             )}
         </Animated.ScrollView>
     );
+};
+
+const sentenceBaseStyle = {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginVertical: 8,
+    fontSize: 24,
+    fontWeight: 'bold',
+    lineHeight: 28
+};
+
+export const getSentenceStyle = (theme: Theme) => {
+    return StyleSheet.create({
+        odd: {
+            ...sentenceBaseStyle,
+            color: theme.sentenceColor,
+            backgroundColor: '#fff',
+            transform: [{ rotate: '-2deg' }]
+        },
+        even: {
+            ...sentenceBaseStyle,
+            backgroundColor: theme.sentenceColor,
+            color: '#fff',
+            transform: [{ rotate: '2deg' }]
+        }
+    });
 };

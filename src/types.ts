@@ -20,6 +20,8 @@ export interface State {
 export interface StateSetters {
     setCurrentError: (error: State['currentError']) => void;
     setDirection: (direction: State['direction']) => void;
+    setFilter: (filter: State['filter']) => void;
+    setIsSearcherVisible: (isSearcherVisible: boolean) => void;
     setJokeIndex: (index: State['jokeIndex']) => void;
     setJokes: (jokes: State['jokes']) => void;
     setSearcherOffsets: (offsets: State['searcherOffsets']) => void;
@@ -32,5 +34,4 @@ export interface Theme {
     sentenceColor: string;
 }
 
-// TODO Rename ref to value
-export type WrappedValue<T> = { ref?: T };
+export type WrappedValue<T> = { value?: T };

@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, TextInput } from 'react-native';
+import { View, StyleSheet, TextInput } from 'react-native';
 import { Path } from 'react-native-svg';
-import { allStyles } from '../styles';
 import { Theme } from '../types';
 import { Button } from './buttons/button';
 
@@ -15,16 +14,16 @@ interface SearcherProps {
 
 export const Searcher: React.FC<SearcherProps> = (props) => {
     return (
-        <View style={allStyles.searcher}>
+        <View style={styles.searcher}>
             <TextInput
                 value={props.filter}
                 onChangeText={props.setFilter}
                 onFocus={props.displayLastJokeHandler}
-                style={allStyles.searcherInput}
+                style={styles.searcherInput}
             />
             {props.filter !== '' && (
                 <Button
-                    buttonStyle={allStyles.searcherClear}
+                    buttonStyle={styles.searcherClear}
                     onPress={props.clearSearchHandler}
                     viewBox="0 0 352 512"
                 >
@@ -37,3 +36,24 @@ export const Searcher: React.FC<SearcherProps> = (props) => {
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    searcher: {
+        position: 'relative'
+    },
+    searcherInput: {
+        backgroundColor: '#fff',
+        fontSize: 24,
+        height: 56,
+        marginHorizontal: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        textAlign: 'center',
+        fontWeight: 'bold'
+    },
+    searcherClear: {
+        position: 'absolute',
+        right: 16,
+        top: 12
+    }
+});
