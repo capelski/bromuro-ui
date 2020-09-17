@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { ImageBackground, View, Animated } from 'react-native';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { ImageBackground, View, Animated, TextInput } from 'react-native';
 import {
     displayLastJoke,
     displayNextJoke,
@@ -73,6 +73,7 @@ export default function App() {
 
     const opacity = useMemo(() => new Animated.Value(0), []);
     const position = useMemo(() => new Animated.Value(0), []);
+    const inputReference = useRef<TextInput>(null);
 
     // The "enter" animation will be activated every time the jokeIndex changes (e.g.
     // previous or next is clicked) or when an error occurs, to display the message
@@ -88,7 +89,7 @@ export default function App() {
             if (!isLastJoke(jokes, jokeIndex)) {
                 displayNextJoke(state, stateSetters);
             } else if (state.filter) {
-                // TODO Remove the focus from the input
+                inputReference.current?.blur();
                 loadMatchingJoke(state, stateSetters);
             } else {
                 loadRandomJoke(state, stateSetters);
@@ -106,7 +107,12 @@ export default function App() {
 
     const searchHandler = () => {
         setIsSearcherVisible(!isSearcherVisible);
-        // TODO Focus the text input
+        if (!isSearcherVisible) {
+            // Set immediate is required so the input element is inserted in the DOM
+            setImmediate(() => {
+                inputReference.current?.focus();
+            });
+        }
     };
 
     const clearSearchHandler = () => {
@@ -148,6 +154,7 @@ export default function App() {
                             clearSearchHandler={clearSearchHandler}
                             displayLastJokeHandler={displayLastJokeHandler}
                             filter={filter}
+                            reference={inputReference}
                             setFilter={setFilter}
                             theme={theme}
                         />

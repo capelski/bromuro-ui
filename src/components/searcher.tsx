@@ -8,6 +8,7 @@ interface SearcherProps {
     clearSearchHandler: () => void;
     displayLastJokeHandler: () => void;
     filter: string;
+    reference: React.RefObject<TextInput>;
     setFilter: (filter: string) => void;
     theme: Theme;
 }
@@ -19,6 +20,7 @@ export const Searcher: React.FC<SearcherProps> = (props) => {
                 value={props.filter}
                 onChangeText={props.setFilter}
                 onFocus={props.displayLastJokeHandler}
+                ref={props.reference}
                 style={styles.searcherInput}
             />
             {props.filter !== '' && (
