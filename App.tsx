@@ -20,6 +20,7 @@ import { Joke } from './src/types';
 const initialTheme = getRandomTheme();
 
 // TODO Refactor
+// TODO Replace default icons (e.g. favicon, icon, splash)
 
 export default function App() {
     const [jokes, setJokes] = useState<Joke[]>([]);
@@ -42,11 +43,13 @@ export default function App() {
                 setJokeIndex(0);
             })
             .catch((error) => {
+                console.log(error);
                 setLastError({ ref: error.message });
             });
     }, []);
 
     useEffect(() => {
+        // TODO Manage all animations from here
         Animated.sequence([
             translateJoke(position, direction),
             (direction === 'left' ? enterRightAnimation : enterLeftAnimation)(opacity, position)
@@ -97,7 +100,9 @@ export default function App() {
                         setJokeIndex(jokeIndex + 1);
                     })
                     .catch((error) => {
+                        console.log(error);
                         setLastError({ ref: error.message });
+                        // TODO If filtering and 404, clear the filter
                     });
             }
         });
@@ -167,6 +172,9 @@ export default function App() {
                             <TextInput
                                 value={filter}
                                 onChangeText={setFilter}
+                                onFocus={() => {
+                                    setJokeIndex(jokes.length - 1);
+                                }}
                                 style={allStyles.searcherInput}
                             />
                             {filter !== '' && (
