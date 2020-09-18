@@ -31,8 +31,6 @@ import { JokesContainer } from './src/components/jokes-container';
 
 const initialTheme = getRandomTheme();
 
-// TODO Replace default icons (e.g. favicon, icon, splash)
-
 export default function App() {
     const [currentError, setCurrentError] = useState<WrappedValue<string>>({
         value: undefined
