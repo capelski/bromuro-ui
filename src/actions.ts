@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-community/async-storage';
 import { getMatchingJoke, getRandomJoke } from './jokes-network';
 import { getRandomTheme } from './themes';
 import { Joke, State, StateSetters } from './types';
@@ -44,7 +45,7 @@ export const loadMatchingJoke = (state: State, stateSetters: StateSetters) => {
             stateSetters.setCurrentError({ value: undefined });
         })
         .catch((error) => {
-            console.log(error);
+            console.error(error);
             stateSetters.setCurrentError({ value: error.message });
             stateSetters.setFilter('');
             stateSetters.setIsSearcherVisible(false);
@@ -52,16 +53,29 @@ export const loadMatchingJoke = (state: State, stateSetters: StateSetters) => {
 };
 
 export const loadRandomJoke = (state: State, stateSetters: StateSetters) => {
-    getRandomJoke(
-        // TODO Retrieve the ids from local storage
-        []
-    )
+    let displayedJokesId: number[];
+    AsyncStorage.getItem('displayedJokesId')
+        .then((value) => (value !== null ? JSON.parse(value) : []))
+        .catch((error) => {
+            console.error(error);
+            return [];
+        })
+        .then((jokesId) => {
+            displayedJokesId = jokesId;
+            return getRandomJoke(jokesId);
+        })
         .then((joke) => {
             displayNextJoke(state, stateSetters, joke);
             stateSetters.setCurrentError({ value: undefined });
+            displayedJokesId.push(joke.id);
+            // In case the setItem function throws an exception, we do nothing:
+            // displayedJokesId will not be updated. Shit happens
+            AsyncStorage.setItem('displayedJokesId', JSON.stringify(displayedJokesId)).catch(
+                console.error
+            );
         })
         .catch((error) => {
-            console.log(error);
+            console.error(error);
             stateSetters.setCurrentError({ value: error.message });
         });
 };
