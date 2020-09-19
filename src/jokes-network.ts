@@ -1,16 +1,16 @@
 import { config } from './config';
-import { Joke } from './types';
+import { Joke, Limits } from './types';
 
 const useMockService = false && process.env.NODE_ENV !== 'production';
 
-const networkRequest = (url: string) => {
+const networkRequest = <T>(url: string) => {
     let response: Response;
 
     return (
         fetch(url)
             // Fetch might throw an exception if network is unavailable, DNS fails to resolve, etc.
             .catch((error) => {
-                console.log(error);
+                console.warn(error);
                 return {
                     ok: false,
                     json: () =>
@@ -25,21 +25,35 @@ const networkRequest = (url: string) => {
             })
             // response.json() might throw an exception if response doesn't contain JSON
             .catch((error) => {
-                console.log(error);
+                console.warn(error);
                 return { message: 'Vaya... algo no ha ido bien 🤦‍♂️' };
             })
             .then((responseJson) => {
-                console.log('Request:', url);
-                console.log('Response:', response.status);
+                console.log(response.status, '-', url);
                 console.log(responseJson);
 
                 if (response.ok) {
-                    return responseJson as Joke;
+                    return responseJson as T;
                 } else {
                     throw new Error(responseJson.message);
                 }
             })
     );
+};
+
+export const getJokeById = (jokeId: number) => {
+    const absoluteUrl = config.API_URL + `/jokes/${jokeId}`;
+    return useMockService
+        ? Promise.resolve({
+              id: -1,
+              text: ['Random', 'joke', String(new Date().getMilliseconds())]
+          })
+        : networkRequest<Joke>(absoluteUrl);
+};
+
+export const getLimits = () => {
+    const absoluteUrl = config.API_URL + '/jokes/limits';
+    return networkRequest<Limits>(absoluteUrl);
 };
 
 export const getMatchingJoke = (filter: string, offset: number) => {
@@ -51,17 +65,5 @@ export const getMatchingJoke = (filter: string, offset: number) => {
               id: -1,
               text: ['Matching', 'joke', String(new Date().getMilliseconds())]
           })
-        : networkRequest(absoluteUrl);
-};
-
-// TODO Use consumedIds
-export const getRandomJoke = (_consumedIds: number[]) => {
-    const randomJokeId = Math.floor(Math.random() * 324) + 1;
-    const absoluteUrl = config.API_URL + `/jokes/${randomJokeId}`;
-    return useMockService
-        ? Promise.resolve({
-              id: -1,
-              text: ['Random', 'joke', String(new Date().getMilliseconds())]
-          })
-        : networkRequest(absoluteUrl);
+        : networkRequest<Joke>(absoluteUrl);
 };

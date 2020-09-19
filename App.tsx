@@ -6,6 +6,7 @@ import {
     displayPreviousJoke,
     isFirstJoke,
     isLastJoke,
+    loadFirstJoke,
     loadMatchingJoke,
     loadRandomJoke
 } from './src/actions';
@@ -19,10 +20,11 @@ import {
 import { getRandomTheme } from './src/themes';
 import {
     Joke,
+    Limits,
     MovementDirection,
-    StateSetters,
-    State,
     NumericDictionary,
+    State,
+    StateSetters,
     WrappedValue
 } from './src/types';
 import { Buttons } from './src/components/buttons';
@@ -40,6 +42,7 @@ export default function App() {
     const [isSearcherVisible, setIsSearcherVisible] = useState(false);
     const [jokeIndex, setJokeIndex] = useState(-1);
     const [jokes, setJokes] = useState<Joke[]>([]);
+    const [limits, setLimits] = useState<Limits>({ oldest: -1, newest: -1 });
     const [searcherOffsets, setSearcherOffsets] = useState<NumericDictionary>({});
     const [theme, setTheme] = useState(initialTheme);
 
@@ -49,6 +52,7 @@ export default function App() {
         filter,
         jokeIndex,
         jokes,
+        limits,
         searcherOffsets,
         theme
     };
@@ -60,13 +64,14 @@ export default function App() {
         setIsSearcherVisible,
         setJokeIndex,
         setJokes,
+        setLimits,
         setSearcherOffsets,
         setTheme
     };
 
-    // When application starts, a random joke is loaded
+    // When application starts, the jokes limits are fetched and random joke is loaded
     useEffect(() => {
-        loadRandomJoke(state, stateSetters);
+        loadFirstJoke(state, stateSetters);
     }, []);
 
     const opacity = useMemo(() => new Animated.Value(0), []);

@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-community/async-storage';
-import { getMatchingJoke, getRandomJoke } from './jokes-network';
+import { getJokeById, getLimits, getMatchingJoke } from './jokes-network';
 import { getRandomTheme } from './themes';
 import { Joke, State, StateSetters } from './types';
 
@@ -31,6 +31,18 @@ export const isFirstJoke = (index: number) => index === 0;
 
 export const isLastJoke = (jokes: Joke[], jokeIndex: number) => jokeIndex === jokes.length - 1;
 
+export const loadFirstJoke = (state: State, stateSetters: StateSetters) => {
+    return getLimits()
+        .then((limits) => {
+            stateSetters.setLimits(limits);
+            loadRandomJoke({ ...state, limits }, stateSetters);
+        })
+        .catch((error) => {
+            console.warn(error);
+            stateSetters.setCurrentError({ value: error.message });
+        });
+};
+
 export const loadMatchingJoke = (state: State, stateSetters: StateSetters) => {
     let offset = isNaN(state.searcherOffsets[state.filter])
         ? 0
@@ -43,9 +55,10 @@ export const loadMatchingJoke = (state: State, stateSetters: StateSetters) => {
                 [state.filter]: offset + 1
             });
             stateSetters.setCurrentError({ value: undefined });
+            // TODO Store jokeId in async storage
         })
         .catch((error) => {
-            console.error(error);
+            console.warn(error);
             stateSetters.setCurrentError({ value: error.message });
             stateSetters.setFilter('');
             stateSetters.setIsSearcherVisible(false);
@@ -57,12 +70,18 @@ export const loadRandomJoke = (state: State, stateSetters: StateSetters) => {
     AsyncStorage.getItem('displayedJokesId')
         .then((value) => (value !== null ? JSON.parse(value) : []))
         .catch((error) => {
-            console.error(error);
+            console.warn(error);
             return [];
         })
         .then((jokesId) => {
             displayedJokesId = jokesId;
-            return getRandomJoke(jokesId);
+            let randomJokeId =
+                Math.floor(Math.random() * (state.limits.newest - state.limits.oldest)) +
+                state.limits.oldest;
+            while (displayedJokesId.indexOf(randomJokeId) > -1) {
+                randomJokeId = (randomJokeId + 1) % (state.limits.newest + 1);
+            }
+            return getJokeById(randomJokeId);
         })
         .then((joke) => {
             displayNextJoke(state, stateSetters, joke);
@@ -71,11 +90,11 @@ export const loadRandomJoke = (state: State, stateSetters: StateSetters) => {
             // In case the setItem function throws an exception, we do nothing:
             // displayedJokesId will not be updated. Shit happens
             AsyncStorage.setItem('displayedJokesId', JSON.stringify(displayedJokesId)).catch(
-                console.error
+                console.warn
             );
         })
         .catch((error) => {
-            console.error(error);
+            console.warn(error);
             stateSetters.setCurrentError({ value: error.message });
         });
 };
