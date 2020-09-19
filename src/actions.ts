@@ -92,11 +92,16 @@ export const loadRandomJoke = (state: State, stateSetters: StateSetters) => {
     let displayedJokesId: number[];
     getDisplayedJokesId()
         .then((jokesId) => {
-            // TODO If all jokes have been displayed, reset displayedJokesId to []
             displayedJokesId = jokesId;
+
+            if (displayedJokesId.length >= state.limits.newest) {
+                displayedJokesId = [];
+            }
+
             let randomJokeId =
                 Math.floor(Math.random() * (state.limits.newest - state.limits.oldest)) +
                 state.limits.oldest;
+
             while (displayedJokesId.indexOf(randomJokeId) > -1) {
                 randomJokeId = (randomJokeId + 1) % (state.limits.newest + 1);
             }
