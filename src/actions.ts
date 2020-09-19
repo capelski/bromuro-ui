@@ -3,6 +3,18 @@ import { getJokeById, getLimits, getMatchingJoke } from './jokes-network';
 import { getRandomTheme } from './themes';
 import { Joke, State, StateSetters } from './types';
 
+const addDisplayedJokeId = (displayedJokesId: number[], nextJokeId: number) => {
+    if (displayedJokesId.indexOf(nextJokeId) === -1) {
+        displayedJokesId.push(nextJokeId);
+        displayedJokesId.sort((a, b) => a - b);
+        // In case the setItem function throws an exception, we do nothing:
+        // displayedJokesId will not be updated. Shit happens
+        AsyncStorage.setItem('displayedJokesId', JSON.stringify(displayedJokesId)).catch(
+            console.warn
+        );
+    }
+};
+
 export const displayLastJoke = (state: State, stateSetters: StateSetters) => {
     stateSetters.setDirection('left');
     stateSetters.setJokeIndex(state.jokes.length - 1);
@@ -26,6 +38,14 @@ export const displayPreviousJoke = (state: State, stateSetters: StateSetters) =>
         stateSetters.setJokeIndex(state.jokeIndex - 1);
     }
 };
+
+const getDisplayedJokesId = () =>
+    AsyncStorage.getItem('displayedJokesId')
+        .then((value) => (value !== null ? JSON.parse(value) : []))
+        .catch((error) => {
+            console.warn(error);
+            return [];
+        });
 
 export const isFirstJoke = (index: number) => index === 0;
 
@@ -55,7 +75,10 @@ export const loadMatchingJoke = (state: State, stateSetters: StateSetters) => {
                 [state.filter]: offset + 1
             });
             stateSetters.setCurrentError({ value: undefined });
-            // TODO Store jokeId in async storage
+
+            getDisplayedJokesId().then((displayedJokesId) =>
+                addDisplayedJokeId(displayedJokesId, joke.id)
+            );
         })
         .catch((error) => {
             console.warn(error);
@@ -67,13 +90,9 @@ export const loadMatchingJoke = (state: State, stateSetters: StateSetters) => {
 
 export const loadRandomJoke = (state: State, stateSetters: StateSetters) => {
     let displayedJokesId: number[];
-    AsyncStorage.getItem('displayedJokesId')
-        .then((value) => (value !== null ? JSON.parse(value) : []))
-        .catch((error) => {
-            console.warn(error);
-            return [];
-        })
+    getDisplayedJokesId()
         .then((jokesId) => {
+            // TODO If all jokes have been displayed, reset displayedJokesId to []
             displayedJokesId = jokesId;
             let randomJokeId =
                 Math.floor(Math.random() * (state.limits.newest - state.limits.oldest)) +
@@ -86,12 +105,7 @@ export const loadRandomJoke = (state: State, stateSetters: StateSetters) => {
         .then((joke) => {
             displayNextJoke(state, stateSetters, joke);
             stateSetters.setCurrentError({ value: undefined });
-            displayedJokesId.push(joke.id);
-            // In case the setItem function throws an exception, we do nothing:
-            // displayedJokesId will not be updated. Shit happens
-            AsyncStorage.setItem('displayedJokesId', JSON.stringify(displayedJokesId)).catch(
-                console.warn
-            );
+            addDisplayedJokeId(displayedJokesId, joke.id);
         })
         .catch((error) => {
             console.warn(error);
