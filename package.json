@@ -11,7 +11,7 @@
         "ios": "expo start --ios",
         "web": "expo start --web",
         "eject": "expo eject",
-        "build": "expo build:android -t apk"
+        "build": "expo build:android"
     },
     "dependencies": {
         "@react-native-community/async-storage": "^1.12.0",
