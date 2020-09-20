@@ -19,6 +19,7 @@
             "package": "capelski.bromuro"
         },
         "ios": {
+            "bundleIdentifier": "capelski.bromuro",
             "supportsTablet": true
         },
         "web": {
