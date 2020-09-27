@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-community/async-storage';
-import { getJokeById, getLimits, getMatchingJoke } from './jokes-network';
+import { getJokeById, getLimits, getMatchingJoke } from './jokes-repository';
 import { getRandomTheme } from './themes';
 import { Joke, State, StateSetters } from './types';
 
