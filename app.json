@@ -16,7 +16,8 @@
         "assetBundlePatterns": ["**/*"],
         "android": {
             "permissions": [],
-            "package": "capelski.bromuro"
+            "package": "capelski.bromuro",
+            "enableDangerousExperimentalLeanBuilds": true
         },
         "ios": {
             "bundleIdentifier": "capelski.bromuro",
