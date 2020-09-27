@@ -15,6 +15,7 @@
         },
         "assetBundlePatterns": ["**/*"],
         "android": {
+            "versionCode": 2,
             "permissions": [],
             "package": "capelski.bromuro",
             "enableDangerousExperimentalLeanBuilds": true
