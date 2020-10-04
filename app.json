@@ -15,10 +15,10 @@
         },
         "assetBundlePatterns": ["**/*"],
         "android": {
-            "versionCode": 2,
-            "permissions": [],
+            "enableDangerousExperimentalLeanBuilds": true,
             "package": "capelski.bromuro",
-            "enableDangerousExperimentalLeanBuilds": true
+            "permissions": [],
+            "versionCode": 2
         },
         "ios": {
             "bundleIdentifier": "capelski.bromuro",
