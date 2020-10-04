@@ -1,5 +1,7 @@
+import * as Sharing from 'expo-sharing';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { ImageBackground, View, Animated, TextInput } from 'react-native';
+import { captureScreen } from 'react-native-view-shot';
 import {
     displayLastJoke,
     displayNextJoke,
@@ -131,6 +133,22 @@ export default function App() {
         }
     };
 
+    const shareHandler = () => {
+        // TODO Hide buttons and display "Bromuro on Google Play"
+        Sharing.isAvailableAsync().then((isShareAvailable) => {
+            if (isShareAvailable) {
+                captureScreen({
+                    format: 'png',
+                    quality: 0.8
+                })
+                    .then((uri) => {
+                        Sharing.shareAsync(uri);
+                    })
+                    .catch(() => undefined); // Tough luck!;
+            }
+        });
+    };
+
     return (
         <ImageBackground source={theme.backgroundImage} style={theme.backgroundStyle}>
             <View style={{ padding: 16, display: 'flex', flex: 1, overflow: 'hidden' }}>
@@ -150,6 +168,7 @@ export default function App() {
                         nextHandler={nextHandler}
                         previousHandler={previousHandler}
                         searchHandler={searchHandler}
+                        shareHandler={shareHandler}
                         theme={theme}
                     />
                     {isSearcherVisible && (
