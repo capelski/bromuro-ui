@@ -18,7 +18,7 @@
             "enableDangerousExperimentalLeanBuilds": true,
             "package": "capelski.bromuro",
             "permissions": [],
-            "versionCode": 2
+            "versionCode": 3
         },
         "ios": {
             "bundleIdentifier": "capelski.bromuro",
