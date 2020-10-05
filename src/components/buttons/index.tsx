@@ -20,7 +20,7 @@ export interface ButtonsProps {
 export const Buttons: React.FC<ButtonsProps> = (props) => {
     const previousButtonStyle = getButtonStyle(props.theme, !props.isFirstJoke);
     const searchButtonStyle = getButtonStyle(props.theme, true, props.isSearcherVisible);
-    const nextButtonStyle = getButtonStyle(props.theme);
+    const constantButtonStyle = getButtonStyle(props.theme);
 
     return (
         <View
@@ -41,14 +41,14 @@ export const Buttons: React.FC<ButtonsProps> = (props) => {
                 onPress={props.searchHandler}
             />
             <ShareButton
-                buttonStyle={searchButtonStyle.button}
-                fillColor={searchButtonStyle.path.color}
+                buttonStyle={constantButtonStyle.button}
+                fillColor={constantButtonStyle.path.color}
                 onPress={props.shareHandler}
             />
             <NextButton
-                buttonStyle={nextButtonStyle.button}
+                buttonStyle={constantButtonStyle.button}
                 displaySearchIcon={props.displaySearchIcon}
-                fillColor={nextButtonStyle.path.color}
+                fillColor={constantButtonStyle.path.color}
                 onPress={props.nextHandler}
             />
         </View>
