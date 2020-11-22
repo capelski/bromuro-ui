@@ -2,7 +2,7 @@
     "expo": {
         "name": "Bromuro",
         "slug": "bromuro",
-        "version": "1.0.3",
+        "version": "1.0.4",
         "orientation": "portrait",
         "icon": "./assets/icon.png",
         "splash": {
@@ -18,7 +18,7 @@
             "enableDangerousExperimentalLeanBuilds": true,
             "package": "capelski.bromuro",
             "permissions": [],
-            "versionCode": 4
+            "versionCode": 5
         },
         "ios": {
             "bundleIdentifier": "capelski.bromuro",
