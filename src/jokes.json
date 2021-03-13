@@ -340,7 +340,7 @@
     ["Que boca mas grande tienes abuelita", "¡Cinco pollas me caben!"],
     [
         "¿Tu no eras alérgico a los frutos secos?",
-        "Si, ¿porque?",
+        "Si, ¿por qué?",
         "Porque la tia con la que te liaste anoche tenia nuez",
         "¡Ahora entiendo porque me pica el culo!"
     ],
@@ -748,5 +748,12 @@
         "No gracias",
         "Muy bien, hay que cuidar el planeta. Espera que te daré 17 metros de tickets de papel para que los tires a la basura cuando salgas"
     ],
-    ["Vengo por lo de las clases de salsa", "¿Y esa barra de pan?", "Para mojar"]
+    ["Vengo por lo de las clases de salsa", "¿Y esa barra de pan?", "Para mojar"],
+    ["¿Sabes cómo hace el telefono de un carpintero?", "¿Cómo?", "Aserrín"],
+    ["Van dos soldados en una moto y no se cae ninguno", "¿Por qué?", "Porque van soldados"],
+    ["¿Sabes qué son dos vascos en una nube?", "¿Qué son?", "Chu-vascos"],
+    ["He quedado esta tarde con unos amigos para comprar unas gafas y después ya veremos"],
+    ["¿Sabes qué hace un mudo bailando?", "¿Qué hace?", "Una mudanza"],
+    ["El otro día un león se comió un jabón y ahora espuma"],
+    ["¿Sabías que el 50% del aguacate es agua?", "¡Anda! ¿Y el otro 50?", "Cate"]
 ]
