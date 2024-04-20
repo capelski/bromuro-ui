@@ -1,5 +1,8 @@
+import * as Sharing from 'expo-sharing';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { ImageBackground, View, Animated, TextInput } from 'react-native';
+import { Image, ImageBackground, View, Animated, TextInput, Dimensions } from 'react-native';
+import { captureScreen } from 'react-native-view-shot';
+import googlePlay from './assets/google-play.png';
 import {
     displayLastJoke,
     displayNextJoke,
@@ -33,6 +36,10 @@ import { JokesContainer } from './src/components/jokes-container';
 
 const initialTheme = getRandomTheme();
 
+const dimensions = Dimensions.get('window');
+const bannerWidth = dimensions.width;
+const bannerHeight = 54;
+
 export default function App() {
     const [currentError, setCurrentError] = useState<WrappedValue<string>>({
         value: undefined
@@ -40,6 +47,7 @@ export default function App() {
     const [direction, setDirection] = useState<MovementDirection>('left');
     const [filter, setFilter] = useState('');
     const [isSearcherVisible, setIsSearcherVisible] = useState(false);
+    const [isSharing, setIsSharing] = useState(false);
     const [jokeIndex, setJokeIndex] = useState(-1);
     const [jokes, setJokes] = useState<Joke[]>([]);
     const [limits, setLimits] = useState<Limits>({ oldest: -1, newest: -1 });
@@ -131,9 +139,33 @@ export default function App() {
         }
     };
 
+    const shareHandler = () => {
+        Sharing.isAvailableAsync()
+            .then((isShareAvailable) => {
+                if (isShareAvailable) {
+                    setIsSharing(true);
+                    // Setting a timeout so the bromuro banner is loaded
+                    setTimeout(() => {
+                        captureScreen({
+                            format: 'png',
+                            quality: 0.8
+                        })
+                            .then((uri) => {
+                                Sharing.shareAsync(uri);
+                            })
+                            .catch(() => undefined) // Tough luck!;
+                            .finally(() => {
+                                setIsSharing(false);
+                            });
+                    }, 250);
+                }
+            })
+            .catch(() => undefined);
+    };
+
     return (
         <ImageBackground source={theme.backgroundImage} style={theme.backgroundStyle}>
-            <View style={{ padding: 16, display: 'flex', flex: 1, overflow: 'hidden' }}>
+            <View style={{ padding: 16, flex: 1, overflow: 'hidden' }}>
                 <JokesContainer
                     currentError={currentError}
                     jokeIndex={jokeIndex}
@@ -142,28 +174,39 @@ export default function App() {
                     position={position}
                     theme={theme}
                 />
-                <View>
-                    <Buttons
-                        displaySearchIcon={Boolean(filter) && isLastJoke(jokes, jokeIndex)}
-                        isFirstJoke={isFirstJoke(jokeIndex)}
-                        isSearcherVisible={isSearcherVisible}
-                        nextHandler={nextHandler}
-                        previousHandler={previousHandler}
-                        searchHandler={searchHandler}
-                        theme={theme}
-                    />
-                    {isSearcherVisible && (
-                        <Searcher
-                            clearSearchHandler={clearSearchHandler}
-                            displayLastJokeHandler={displayLastJokeHandler}
-                            filter={filter}
-                            reference={inputReference}
-                            setFilter={setFilter}
+                {!isSharing && (
+                    <View>
+                        <Buttons
+                            displaySearchIcon={Boolean(filter) && isLastJoke(jokes, jokeIndex)}
+                            isFirstJoke={isFirstJoke(jokeIndex)}
+                            isSearcherVisible={isSearcherVisible}
+                            nextHandler={nextHandler}
+                            previousHandler={previousHandler}
+                            searchHandler={searchHandler}
+                            shareHandler={shareHandler}
                             theme={theme}
                         />
-                    )}
-                </View>
+                        {isSearcherVisible && (
+                            <Searcher
+                                clearSearchHandler={clearSearchHandler}
+                                displayLastJokeHandler={displayLastJokeHandler}
+                                filter={filter}
+                                reference={inputReference}
+                                setFilter={setFilter}
+                                theme={theme}
+                            />
+                        )}
+                    </View>
+                )}
             </View>
+            {isSharing && (
+                <Image
+                    source={googlePlay}
+                    width={bannerWidth}
+                    height={bannerHeight}
+                    style={{ width: bannerWidth, height: bannerHeight, resizeMode: 'contain' }}
+                />
+            )}
         </ImageBackground>
     );
 }

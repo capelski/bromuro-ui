@@ -4,6 +4,7 @@ import { Theme } from '../../types';
 import { NextButton } from './next';
 import { PreviousButton } from './previous';
 import { SearchButton } from './search';
+import { ShareButton } from './share';
 
 export interface ButtonsProps {
     displaySearchIcon: boolean;
@@ -12,13 +13,14 @@ export interface ButtonsProps {
     nextHandler: () => void;
     previousHandler: () => void;
     searchHandler: () => void;
+    shareHandler: () => void;
     theme: Theme;
 }
 
 export const Buttons: React.FC<ButtonsProps> = (props) => {
     const previousButtonStyle = getButtonStyle(props.theme, !props.isFirstJoke);
     const searchButtonStyle = getButtonStyle(props.theme, true, props.isSearcherVisible);
-    const nextButtonStyle = getButtonStyle(props.theme);
+    const constantButtonStyle = getButtonStyle(props.theme);
 
     return (
         <View
@@ -38,10 +40,15 @@ export const Buttons: React.FC<ButtonsProps> = (props) => {
                 fillColor={searchButtonStyle.path.color}
                 onPress={props.searchHandler}
             />
+            <ShareButton
+                buttonStyle={constantButtonStyle.button}
+                fillColor={constantButtonStyle.path.color}
+                onPress={props.shareHandler}
+            />
             <NextButton
-                buttonStyle={nextButtonStyle.button}
+                buttonStyle={constantButtonStyle.button}
                 displaySearchIcon={props.displaySearchIcon}
-                fillColor={nextButtonStyle.path.color}
+                fillColor={constantButtonStyle.path.color}
                 onPress={props.nextHandler}
             />
         </View>
@@ -53,7 +60,7 @@ export const getButtonStyle = (theme: Theme, isEnabled = true, isActive = false)
         button: {
             marginVertical: 16,
             marginHorizontal: 8,
-            padding: 16,
+            padding: 12,
             backgroundColor: isEnabled
                 ? isActive
                     ? theme.sentenceColor
