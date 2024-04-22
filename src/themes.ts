@@ -5,27 +5,27 @@ import deltaBg from '../assets/backgrounds/delta-bg.png';
 import { Theme } from './types';
 
 const themes: Theme[] = [
-    {
-        backgroundImage: alphaBg,
-        backgroundStyle: { flex: 1, backgroundColor: '#4d6cfa' },
-        sentenceColor: '#477106'
-    },
-    {
-        backgroundImage: betaBg,
-        backgroundStyle: { flex: 1, backgroundColor: '#d8305a' },
-        sentenceColor: '#fc863b'
-    },
-    {
-        backgroundImage: gammaBg,
-        backgroundStyle: { flex: 1, backgroundColor: '#a094ff' },
-        sentenceColor: '#4d36fe'
-    },
-    {
-        backgroundImage: deltaBg,
-        backgroundStyle: { flex: 1, backgroundColor: '#94dfff' },
-        sentenceColor: '#ff6767'
-    }
+  {
+    backgroundColor: '#4d6cfa',
+    backgroundImage: alphaBg,
+    sentenceColor: '#477106',
+  },
+  {
+    backgroundColor: '#d8305a',
+    backgroundImage: betaBg,
+    sentenceColor: '#fc863b',
+  },
+  {
+    backgroundColor: '#a094ff',
+    backgroundImage: gammaBg,
+    sentenceColor: '#4d36fe',
+  },
+  {
+    backgroundColor: '#94dfff',
+    backgroundImage: deltaBg,
+    sentenceColor: '#ff6767',
+  },
 ];
 
 export const getRandomTheme = (current?: Theme) =>
-    themes.filter((b) => b !== current)[Math.floor(Math.random() * (themes.length - 1))];
+  themes.filter((b) => b !== current)[Math.floor(Math.random() * (themes.length - 1))];

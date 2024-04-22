@@ -1,31 +1,31 @@
 {
-    "expo": {
-        "name": "Bromuro",
-        "slug": "bromuro",
-        "version": "1.0.4",
-        "orientation": "portrait",
-        "icon": "./assets/icon.png",
-        "splash": {
-            "image": "./assets/splash.png",
-            "resizeMode": "contain",
-            "backgroundColor": "#ffffff"
-        },
-        "updates": {
-            "fallbackToCacheTimeout": 0
-        },
-        "assetBundlePatterns": ["**/*"],
-        "android": {
-            "enableDangerousExperimentalLeanBuilds": true,
-            "package": "capelski.bromuro",
-            "permissions": [],
-            "versionCode": 5
-        },
-        "ios": {
-            "bundleIdentifier": "capelski.bromuro",
-            "supportsTablet": true
-        },
-        "web": {
-            "favicon": "./assets/favicon.png"
-        }
+  "expo": {
+    "name": "Bromuro",
+    "slug": "bromuro",
+    "version": "1.0.4",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "capelski.bromuro",
+      "permissions": [],
+      "versionCode": 5
+    },
+    "ios": {
+      "bundleIdentifier": "capelski.bromuro",
+      "supportsTablet": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     }
+  }
 }
