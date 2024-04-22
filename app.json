@@ -2,7 +2,7 @@
   "expo": {
     "name": "Bromuro",
     "slug": "bromuro",
-    "version": "1.0.4",
+    "version": "1.0.7",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -18,7 +18,7 @@
     "android": {
       "package": "capelski.bromuro",
       "permissions": [],
-      "versionCode": 5
+      "versionCode": 7
     },
     "ios": {
       "bundleIdentifier": "capelski.bromuro",
@@ -26,6 +26,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "557feb1d-680f-449f-b7ae-3e0fecd3cf78"
+      }
     }
   }
 }
